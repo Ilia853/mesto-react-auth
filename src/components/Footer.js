@@ -1,6 +1,6 @@
 import React from "react";
 
-function Footer(loggedIn) {
+function Footer() {
     return <footer className="footer">&#169; {new Date().getFullYear()} Mesto Russia</footer>;
 }
 

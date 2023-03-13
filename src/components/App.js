@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Header from "./Header";
 import Main from "./Main";
 import Footer from "./Footer";
@@ -11,7 +11,10 @@ import AddPlacePopup from "./AddPlacePopup";
 import Register from "./Register";
 import Login from "./Login";
 import ProtectedRoute from "./ProtectedRoute";
+import {Link, useNavigate } from 'react-router-dom';
 import { Route, Routes } from "react-router-dom";
+import * as auth from '../utils/auth';
+
 
 function App() {
     const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = React.useState(false);
@@ -21,6 +24,7 @@ function App() {
     const [currentUser, setCurrentUser] = React.useState({});
     const [cards, setCards] = React.useState([]);
     const [loggedIn, setLoggedIn] = React.useState(false);
+    const navigate = useNavigate();
 
     React.useEffect(() => {
         api.getProfile()
@@ -96,6 +100,35 @@ function App() {
         setSelectedCard({ name: "", link: "" });
     }
 
+    function handleLogin() {
+        setLoggedIn(true);
+    }
+
+    React.useEffect(() => {
+        tokenCheck();
+    }, []);
+
+    function tokenCheck() {
+        const token = localStorage.getItem("token");
+
+        if(token){
+            auth.getContent(token)
+                .then((res) => {
+                    if(res) {
+                        const userData = {
+                            email: res.email
+                          }
+                        setLoggedIn(true);
+                        setCurrentUser(userData) // добавляем в стейт данные почты
+                        navigate("/", {replace: true});
+                    }
+                })
+                .catch((err) => {
+                    console.log("TokenCheckError", err);
+                })
+        }
+    }
+
     return (
         <div>
             <CurrentUserContext.Provider value={currentUser}>
@@ -118,7 +151,7 @@ function App() {
                         }
                     />
                     <Route path="/sign-up" element={<Register />} />
-                    <Route path="/sign-in" element={<Login />} />
+                    <Route path="/sign-in" element={<Login handleLogin={handleLogin} />} />
                 </Routes>
 
                 <ImagePopup card={selectedCard} onClose={closeAllPopups} />
@@ -126,7 +159,7 @@ function App() {
                 <EditAvatarPopup isOpen={isEditAvatarPopupOpen} onClose={closeAllPopups} onUpdateAvatar={handleUpdateAvatar} />
                 <AddPlacePopup isOpen={isAddPlacePopupOpen} onClose={closeAllPopups} onAddPlace={handleAddPlaceSubmit} />
                 
-                <Footer loggedIn={loggedIn}/>
+                {loggedIn && <Footer />}
             </CurrentUserContext.Provider>
         </div>
     );
