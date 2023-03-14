@@ -35,14 +35,16 @@ function Login({handleLogin}) {
       }
 
     return (
-        <div className="register">
+        
+            <div className="register">
             <h2 className="register__title">Вход</h2>
             <form className="register__form" onSubmit={handleSubmit}>
-                <input placeholder="Email" onChange={handleEmailChange} />
-                <input placeholder="Пароль" onChange={handlePasswordChange}/>
+                <input placeholder="Email" className="register__input register__input_type_email" onChange={handleEmailChange} />
+                <input placeholder="Пароль" className="register__input register__input_type_password" type="password" onChange={handlePasswordChange}/>
                 <button className="register__form-button" onSubmit={handleSubmit}>Войти</button>
             </form>
         </div>
+        
     )
 }
 

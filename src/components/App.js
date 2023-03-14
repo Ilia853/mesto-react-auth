@@ -109,7 +109,7 @@ function App() {
     }, []);
 
     function tokenCheck() {
-        const token = localStorage.getItem("token");
+        const token = localStorage.removeItem("token");
 
         if(token){
             auth.getContent(token)
@@ -132,7 +132,7 @@ function App() {
     return (
         <div>
             <CurrentUserContext.Provider value={currentUser}>
-                <Header />
+                {/* <Header /> */}
                 <Routes>
                     <Route
                         path="/"

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import * as auth from "../utils/auth";
+import Header from "./Header";
 
 function Register() {
     const [email, setEmail] = useState("");
@@ -28,20 +29,28 @@ function Register() {
     };
 
     return (
-        <div className="register">
-            <h2 className="register__title">Регистрация</h2>
-            <form className="register__form" onSubmit={handleSubmit}>
-                <input placeholder="Email" onChange={handleEmailChange} />
-                <input placeholder="Пароль" onChange={handlePasswordChange} />
-                <button className="register__form-button" onSubmit={handleSubmit}>
-                    Зарегистрироваться
-                </button>
-            </form>
-            <div className="register__sign-in">
-                <p className="">Уже зарегистрированы?</p>
-                <Link to="/sign-in" className="register__login-link">
-                    Войти
-                </Link>
+        <div>
+            <Header key={"reg"} link={"/sign-in"} title={"Войти"}/>
+            <div className="register">
+                <h2 className="register__title">Регистрация</h2>
+                <form className="register__form" onSubmit={handleSubmit}>
+                    <input className="register__input register__input_type_email" placeholder="Email" onChange={handleEmailChange} />
+                    <input
+                        className="register__input register__input_type_password"
+                        type="password"
+                        placeholder="Пароль"
+                        onChange={handlePasswordChange}
+                    />
+                    <button className="register__form-button" onSubmit={handleSubmit}>
+                        Зарегистрироваться
+                    </button>
+                </form>
+                <div className="register__sign-in">
+                    <p className="register__paragraph">Уже зарегистрированы?</p>
+                    <Link to="/sign-in" className="register__login-link">
+                        Войти
+                    </Link>
+                </div>
             </div>
         </div>
     );

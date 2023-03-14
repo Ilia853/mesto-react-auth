@@ -8,15 +8,7 @@ export const register = (email, password) => {
         },
         body: JSON.stringify({ email, password }),
     })
-        .then((response) => {
-            try {
-                if (response.status === 200) {
-                    return response.json();
-                }
-            } catch (e) {
-                return e;
-            }
-        })
+        .then((res) => (res.ok ? res.json() : Promise.reject(`Ошибка: ${res.status}`)))
         .then((res) => {
             return res;
         })
@@ -31,28 +23,28 @@ export const authorize = (email, password) => {
         },
         body: JSON.stringify({ email, password }),
     })
-    .then(res => res.json())
-    .then((data) => {
-        if(data.token) {
-            localStorage.setItem('token', data.token);
-            return data;
-        } else {
-            return;
-        }
-    })
-    .catch((err) => {
-        console.log("Authorize", err);
-    })
-}
+        .then((res) => res.json())
+        .then((data) => {
+            if (data.token) {
+                localStorage.setItem("token", data.token);
+                return data;
+            } else {
+                return;
+            }
+        })
+        .catch((err) => {
+            console.log("Authorize", err);
+        });
+};
 
 export const getContent = (token) => {
     return fetch(`${BASE_URL}/users/me`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
-            "Authorization" : `Bearer ${token}`,
-        }
+            Authorization: `Bearer ${token}`,
+        },
     })
-    .then(res => res.json())
-    .then(data => data)
-}
+        .then((res) => res.json())
+        .then((data) => data);
+};
