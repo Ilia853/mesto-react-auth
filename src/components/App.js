@@ -11,15 +11,16 @@ import AddPlacePopup from "./AddPlacePopup";
 import Register from "./Register";
 import Login from "./Login";
 import ProtectedRoute from "./ProtectedRoute";
-import {Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from "react-router-dom";
 import { Route, Routes } from "react-router-dom";
-import * as auth from '../utils/auth';
-
+import * as auth from "../utils/auth";
+import InfoTooltip from "./InfoTooltip";
 
 function App() {
     const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = React.useState(false);
     const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = React.useState(false);
     const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = React.useState(false);
+    const [isRegisterPopupOpen, setIsRegisterPopupOpen] = React.useState(false);
     const [selectedCard, setSelectedCard] = React.useState({ name: "", link: "" });
     const [currentUser, setCurrentUser] = React.useState({});
     const [cards, setCards] = React.useState([]);
@@ -97,6 +98,7 @@ function App() {
         setIsEditProfilePopupOpen(false);
         setIsAddPlacePopupOpen(false);
         setIsEditAvatarPopupOpen(false);
+        setIsRegisterPopupOpen(false);
         setSelectedCard({ name: "", link: "" });
     }
 
@@ -109,24 +111,28 @@ function App() {
     }, []);
 
     function tokenCheck() {
-        const token = localStorage.removeItem("token");
+        const token = localStorage.getItem("token");
 
-        if(token){
+        if (token) {
             auth.getContent(token)
                 .then((res) => {
-                    if(res) {
+                    if (res) {
                         const userData = {
-                            email: res.email
-                          }
+                            email: res.email,
+                        };
                         setLoggedIn(true);
-                        setCurrentUser(userData) // добавляем в стейт данные почты
-                        navigate("/", {replace: true});
+                        setCurrentUser(userData); // добавляем в стейт данные почты
+                        navigate("/", { replace: true });
                     }
                 })
                 .catch((err) => {
                     console.log("TokenCheckError", err);
-                })
+                });
         }
+    }
+
+    function handleRegister() {
+        setIsRegisterPopupOpen(true);
     }
 
     return (
@@ -150,7 +156,7 @@ function App() {
                             />
                         }
                     />
-                    <Route path="/sign-up" element={<Register />} />
+                    <Route path="/sign-up" element={<Register handleRegister={handleRegister} />} />
                     <Route path="/sign-in" element={<Login handleLogin={handleLogin} />} />
                 </Routes>
 
@@ -158,7 +164,7 @@ function App() {
                 <EditProfilePopup isOpen={isEditProfilePopupOpen} onClose={closeAllPopups} onUpdateUser={handleUpdateUser} />
                 <EditAvatarPopup isOpen={isEditAvatarPopupOpen} onClose={closeAllPopups} onUpdateAvatar={handleUpdateAvatar} />
                 <AddPlacePopup isOpen={isAddPlacePopupOpen} onClose={closeAllPopups} onAddPlace={handleAddPlaceSubmit} />
-                
+                <InfoTooltip isOpen={isRegisterPopupOpen} onClose={closeAllPopups} />
                 {loggedIn && <Footer />}
             </CurrentUserContext.Provider>
         </div>

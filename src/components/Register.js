@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import * as auth from "../utils/auth";
 import Header from "./Header";
 
-function Register() {
+function Register({ handleRegister }) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
@@ -21,7 +21,13 @@ function Register() {
         e.preventDefault();
         auth.register(email, password)
             .then((res) => {
-                navigate("/sign-in", { replace: true });
+                if (res) {
+                    handleRegister();
+                    navigate("/sign-in", { replace: true });
+                } else {
+                    // handleRegister();
+                    console.log("что-то пошло не так");
+                }
             })
             .catch((err) => {
                 console.log("Error", err);
@@ -30,7 +36,7 @@ function Register() {
 
     return (
         <div>
-            <Header key={"reg"} link={"/sign-in"} title={"Войти"}/>
+            <Header key={"reg"} link={"/sign-in"} title={"Войти"} />
             <div className="register">
                 <h2 className="register__title">Регистрация</h2>
                 <form className="register__form" onSubmit={handleSubmit}>

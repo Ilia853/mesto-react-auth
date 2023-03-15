@@ -45,6 +45,10 @@
 @import url(./blocks/popup/__input-error-message/popup__input-error-message.css);
 @import url(./blocks/popup/__form-button/popup__form-button.css);
 @import url(./blocks/popup/__form-button/_type/popup__form-button_disabled.css);
+@import url(./blocks/popup/__reg-status/popup__reg-status.css);
+@import url(./blocks/popup/__reg-status/_type/popup__reg-status_type_err.css);
+@import url(./blocks/popup/__reg-status/_type/popup__reg-status_type_ok.css);
+@import url(./blocks/popup/__reg-title/popup__reg-title.css);
 
 @import url(./blocks/register/register.css);
 
