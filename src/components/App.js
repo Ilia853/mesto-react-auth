@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Header from "./Header";
 import Main from "./Main";
 import Footer from "./Footer";
@@ -11,23 +11,29 @@ import AddPlacePopup from "./AddPlacePopup";
 import Register from "./Register";
 import Login from "./Login";
 import ProtectedRoute from "./ProtectedRoute";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Route, Routes } from "react-router-dom";
 import * as auth from "../utils/auth";
 import InfoTooltip from "./InfoTooltip";
 
 function App() {
-    const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = React.useState(false);
-    const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = React.useState(false);
-    const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = React.useState(false);
-    const [isRegisterPopupOpen, setIsRegisterPopupOpen] = React.useState(false);
-    const [selectedCard, setSelectedCard] = React.useState({ name: "", link: "" });
-    const [currentUser, setCurrentUser] = React.useState({});
-    const [cards, setCards] = React.useState([]);
-    const [loggedIn, setLoggedIn] = React.useState(false);
+    const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
+    const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
+    const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
+    const [isRegisterPopupOpen, setIsRegisterPopupOpen] = useState(false);
+    const [selectedCard, setSelectedCard] = useState({ name: "", link: "" });
+    const [currentUser, setCurrentUser] = useState({});
+    const [cards, setCards] = useState([]);
+    const [loggedIn, setLoggedIn] = useState(false);
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [registerInfo, setRegisterInfo] = useState("");
+    const [registerStatus, setRegisterStatus] = useState(false);
+    const [userEmail, setUserEmail] = useState("");
+
     const navigate = useNavigate();
 
-    React.useEffect(() => {
+    useEffect(() => {
         api.getProfile()
             .then((userData) => {
                 setCurrentUser(userData);
@@ -37,7 +43,7 @@ function App() {
             });
     }, []);
 
-    React.useEffect(() => {
+    useEffect(() => {
         api.getInitialCards()
             .then((cardsData) => {
                 setCards(cardsData);
@@ -106,7 +112,7 @@ function App() {
         setLoggedIn(true);
     }
 
-    React.useEffect(() => {
+    useEffect(() => {
         tokenCheck();
     }, []);
 
@@ -118,10 +124,11 @@ function App() {
                 .then((res) => {
                     if (res) {
                         const userData = {
-                            email: res.email,
+                            email: res.data.email,
                         };
+                        setUserEmail(userData.email);
                         setLoggedIn(true);
-                        setCurrentUser(userData); // добавляем в стейт данные почты
+                        setCurrentUser(userData);
                         navigate("/", { replace: true });
                     }
                 })
@@ -135,10 +142,37 @@ function App() {
         setIsRegisterPopupOpen(true);
     }
 
+    function handleEmailChange(evt) {
+        setEmail(evt.target.value);
+    }
+
+    function handlePasswordChange(evt) {
+        setPassword(evt.target.value);
+    }
+
+    const handleSubmitRegister = (e) => {
+        e.preventDefault();
+        auth.register(email, password)
+            .then((res) => {
+                if (res) {
+                    setRegisterInfo("Вы успешно зарегистрировались!");
+                    setRegisterStatus(true);
+                    handleRegister();
+                    navigate("/sign-in", { replace: true });
+                } else {
+                    setRegisterInfo("Что-то пошло не так! Попробуйте ещё раз.");
+                    handleRegister();
+                }
+            })
+            .catch((err) => {
+                console.log("Error", err);
+            });
+    };
+
     return (
         <div>
             <CurrentUserContext.Provider value={currentUser}>
-                {/* <Header /> */}
+                <Header userEmail={userEmail} />
                 <Routes>
                     <Route
                         path="/"
@@ -156,7 +190,16 @@ function App() {
                             />
                         }
                     />
-                    <Route path="/sign-up" element={<Register handleRegister={handleRegister} />} />
+                    <Route
+                        path="/sign-up"
+                        element={
+                            <Register
+                                handleEmailChange={handleEmailChange}
+                                handlePasswordChange={handlePasswordChange}
+                                handleSubmitRegister={handleSubmitRegister}
+                            />
+                        }
+                    />
                     <Route path="/sign-in" element={<Login handleLogin={handleLogin} />} />
                 </Routes>
 
@@ -164,7 +207,12 @@ function App() {
                 <EditProfilePopup isOpen={isEditProfilePopupOpen} onClose={closeAllPopups} onUpdateUser={handleUpdateUser} />
                 <EditAvatarPopup isOpen={isEditAvatarPopupOpen} onClose={closeAllPopups} onUpdateAvatar={handleUpdateAvatar} />
                 <AddPlacePopup isOpen={isAddPlacePopupOpen} onClose={closeAllPopups} onAddPlace={handleAddPlaceSubmit} />
-                <InfoTooltip isOpen={isRegisterPopupOpen} onClose={closeAllPopups} />
+                <InfoTooltip
+                    isOpen={isRegisterPopupOpen}
+                    onClose={closeAllPopups}
+                    registerInfo={registerInfo}
+                    registerStatus={registerStatus}
+                />
                 {loggedIn && <Footer />}
             </CurrentUserContext.Provider>
         </div>

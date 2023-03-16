@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import {Link, useNavigate } from 'react-router-dom';
-import * as auth from '../utils/auth';
+import { useNavigate } from "react-router-dom";
+import * as auth from "../utils/auth";
 
-function Login({handleLogin}) {
+function Login({ handleLogin }) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
@@ -18,34 +18,40 @@ function Login({handleLogin}) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if(!email || !password) {
+        if (!email || !password) {
             return;
         }
-        auth.authorize(email, password).then((data) => {
-            if(data.token) {
-                setEmail("");
-                setPassword("");
-                handleLogin();
-                navigate("/", {replace: true})
-            }
-        })
-        .catch((err) => {
-            console.log("Login", err)
-        })
-      }
+        auth.authorize(email, password)
+            .then((data) => {
+                if (data.token) {
+                    setEmail("");
+                    setPassword("");
+                    handleLogin();
+                    navigate("/", { replace: true });
+                }
+            })
+            .catch((err) => {
+                console.log("Login", err);
+            });
+    };
 
     return (
-        
-            <div className="register">
+        <div className="register">
             <h2 className="register__title">Вход</h2>
             <form className="register__form" onSubmit={handleSubmit}>
                 <input placeholder="Email" className="register__input register__input_type_email" onChange={handleEmailChange} />
-                <input placeholder="Пароль" className="register__input register__input_type_password" type="password" onChange={handlePasswordChange}/>
-                <button className="register__form-button" onSubmit={handleSubmit}>Войти</button>
+                <input
+                    placeholder="Пароль"
+                    className="register__input register__input_type_password"
+                    type="password"
+                    onChange={handlePasswordChange}
+                />
+                <button className="register__form-button" onSubmit={handleSubmit}>
+                    Войти
+                </button>
             </form>
         </div>
-        
-    )
+    );
 }
 
 export default Login;

@@ -1,45 +1,12 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import * as auth from "../utils/auth";
-import Header from "./Header";
+import React from "react";
+import { Link } from "react-router-dom";
 
-function Register({ handleRegister }) {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-
-    function handleEmailChange(evt) {
-        setEmail(evt.target.value);
-    }
-
-    function handlePasswordChange(evt) {
-        setPassword(evt.target.value);
-    }
-
-    const navigate = useNavigate();
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        auth.register(email, password)
-            .then((res) => {
-                if (res) {
-                    handleRegister();
-                    navigate("/sign-in", { replace: true });
-                } else {
-                    // handleRegister();
-                    console.log("что-то пошло не так");
-                }
-            })
-            .catch((err) => {
-                console.log("Error", err);
-            });
-    };
-
+function Register({ handleEmailChange, handlePasswordChange, handleSubmitRegister }) {
     return (
         <div>
-            <Header key={"reg"} link={"/sign-in"} title={"Войти"} />
             <div className="register">
                 <h2 className="register__title">Регистрация</h2>
-                <form className="register__form" onSubmit={handleSubmit}>
+                <form className="register__form" onSubmit={handleSubmitRegister}>
                     <input className="register__input register__input_type_email" placeholder="Email" onChange={handleEmailChange} />
                     <input
                         className="register__input register__input_type_password"
@@ -47,7 +14,7 @@ function Register({ handleRegister }) {
                         placeholder="Пароль"
                         onChange={handlePasswordChange}
                     />
-                    <button className="register__form-button" onSubmit={handleSubmit}>
+                    <button className="register__form-button" onSubmit={handleSubmitRegister}>
                         Зарегистрироваться
                     </button>
                 </form>
