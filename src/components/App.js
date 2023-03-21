@@ -34,24 +34,28 @@ function App() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        api.getProfile()
-            .then((userData) => {
-                setCurrentUser(userData);
-            })
-            .catch((err) => {
-                console.log("userDataError", err);
-            });
-    }, []);
+        if (loggedIn) {
+            api.getProfile()
+                .then((userData) => {
+                    setCurrentUser(userData);
+                })
+                .catch((err) => {
+                    console.log("userDataError", err);
+                });
+        }
+    }, [loggedIn]);
 
     useEffect(() => {
-        api.getInitialCards()
-            .then((cardsData) => {
-                setCards(cardsData);
-            })
-            .catch((err) => {
-                console.log("initialCards", err);
-            });
-    }, []);
+        if (loggedIn) {
+            api.getInitialCards()
+                .then((cardsData) => {
+                    setCards(cardsData);
+                })
+                .catch((err) => {
+                    console.log("initialCards", err);
+                });
+        }
+    }, [loggedIn]);
 
     const handleCardDelete = (id) => {
         api.delImage(id)
@@ -87,17 +91,25 @@ function App() {
     }
 
     function handleUpdateAvatar(avatarData) {
-        api.changeAvatar(avatarData.avatar).then((avatarData) => {
-            setCurrentUser(avatarData);
-            closeAllPopups();
-        });
+        api.changeAvatar(avatarData.avatar)
+            .then((avatarData) => {
+                setCurrentUser(avatarData);
+                closeAllPopups();
+            })
+            .catch((err) => {
+                console.log("updateAvatarError", err);
+            });
     }
 
     function handleAddPlaceSubmit(newCard) {
-        api.addImage(newCard.name, newCard.link, newCard.likes).then((newCard) => {
-            setCards([newCard, ...cards]);
-            closeAllPopups();
-        });
+        api.addImage(newCard.name, newCard.link, newCard.likes)
+            .then((newCard) => {
+                setCards([newCard, ...cards]);
+                closeAllPopups();
+            })
+            .catch((err) => {
+                console.log("updateAddPlaceError", err);
+            });
     }
 
     function closeAllPopups() {
@@ -128,7 +140,7 @@ function App() {
                         };
                         setUserEmail(userData.email);
                         setLoggedIn(true);
-                        setCurrentUser(userData);
+                        setCurrentUser(prevData=>({...prevData, userData}));
                         navigate("/", { replace: true });
                     }
                 })
@@ -150,6 +162,29 @@ function App() {
         setPassword(evt.target.value);
     }
 
+    const handleSubmitLogin = (e) => {
+        e.preventDefault();
+        if (!email || !password) {
+            setRegisterInfo("Введите почту и пароль");
+            handleRegister();
+            return;
+        }
+        auth.authorize(email, password)
+            .then((data) => {
+                if (data.token) {
+                    setEmail(email);
+                    setPassword("");
+                    handleLogin();
+                    navigate("/", { replace: true });
+                }
+            })
+            .catch((err) => {
+                console.log("Login", err);
+                setRegisterInfo("Что-то пошло не так! Попробуйте ещё раз.");
+                handleRegister();
+            });
+    };
+
     const handleSubmitRegister = (e) => {
         e.preventDefault();
         auth.register(email, password)
@@ -159,20 +194,19 @@ function App() {
                     setRegisterStatus(true);
                     handleRegister();
                     navigate("/sign-in", { replace: true });
-                } else {
-                    setRegisterInfo("Что-то пошло не так! Попробуйте ещё раз.");
-                    handleRegister();
                 }
             })
             .catch((err) => {
                 console.log("Error", err);
+                setRegisterInfo("Что-то пошло не так! Попробуйте ещё раз.");
+                handleRegister();
             });
     };
 
     return (
         <div>
             <CurrentUserContext.Provider value={currentUser}>
-                <Header userEmail={userEmail} />
+                <Header userEmail={email} />
                 <Routes>
                     <Route
                         path="/"
@@ -200,7 +234,16 @@ function App() {
                             />
                         }
                     />
-                    <Route path="/sign-in" element={<Login handleLogin={handleLogin} />} />
+                    <Route
+                        path="/sign-in"
+                        element={
+                            <Login
+                                handleSubmitLogin={handleSubmitLogin}
+                                handleEmailChange={handleEmailChange}
+                                handlePasswordChange={handlePasswordChange}
+                            />
+                        }
+                    />
                 </Routes>
 
                 <ImagePopup card={selectedCard} onClose={closeAllPopups} />
