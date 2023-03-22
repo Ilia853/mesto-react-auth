@@ -29,7 +29,6 @@ function App() {
     const [password, setPassword] = useState("");
     const [registerInfo, setRegisterInfo] = useState("");
     const [registerStatus, setRegisterStatus] = useState(false);
-    const [userEmail, setUserEmail] = useState("");
 
     const navigate = useNavigate();
 
@@ -138,7 +137,7 @@ function App() {
                         const userData = {
                             email: res.data.email,
                         };
-                        setUserEmail(userData.email);
+                        setEmail(userData.email);
                         setLoggedIn(true);
                         setCurrentUser(prevData=>({...prevData, userData}));
                         navigate("/", { replace: true });
